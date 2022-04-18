@@ -1,5 +1,7 @@
 # PrivacyEnhancedPrizes
 
+![alt text](https://github.com/lucascudo/PrivacyEnhancedPrizes/blob/main/PrivacyEnhancedPrizes.jpg?raw=true)
+
 ## TODO
 - adicionar mongodb e mongoose
 - mover utilizadores hardcoded para o mongodb (com as senhas criptografadas)
