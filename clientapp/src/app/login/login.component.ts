@@ -24,8 +24,10 @@ export class LoginComponent {
   login() {
     const val = this.form.value;
     if (val.email && val.password) {
+      this.authService.getProfile().subscribe(res => console.log('profile:', res)); // Unauthorized
       this.authService.login(val.email, val.password).subscribe(() => {
         console.log(`User ${val.email} is logged in`);
+        this.authService.getProfile().subscribe(res => console.log('profile:', res)); // Authorized
         this.router.navigateByUrl('/');
       });
     }

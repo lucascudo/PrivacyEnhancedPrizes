@@ -3,7 +3,6 @@
 ![System Architecture](https://raw.githubusercontent.com/lucascudo/PrivacyEnhancedPrizes/main/PrivacyEnhancedPrizes.png)
 
 ## TODO
-- criar página de login (https://blog.angular-university.io/angular-jwt-authentication/)
 - adicionar mongodb e mongoose
 - mover utilizadores hardcoded para o mongodb (com as senhas criptografadas)
 - criar página e rota na api para registro de utilizadores
