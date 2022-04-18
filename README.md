@@ -1,6 +1,6 @@
 # PrivacyEnhancedPrizes
 
-![alt text](https://github.com/lucascudo/PrivacyEnhancedPrizes/blob/main/PrivacyEnhancedPrizes.jpg?raw=true)
+![alt text](https://raw.githubusercontent.com/lucascudo/PrivacyEnhancedPrizes/main/PrivacyEnhancedPrizes.png)
 
 ## TODO
 - adicionar mongodb e mongoose
