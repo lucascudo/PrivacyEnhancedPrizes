@@ -20,6 +20,7 @@ export class AuthService {
     const expiresAt = moment().add(decodedToken.exp,'second');
 
     localStorage.setItem('access_token', authResult.access_token);
+    localStorage.setItem('decoded_token', JSON.stringify(decodedToken));
     localStorage.setItem('exp', JSON.stringify(expiresAt.valueOf()) );
   }
 
@@ -31,6 +32,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('decoded_token');
     localStorage.removeItem('exp');
   }
 
