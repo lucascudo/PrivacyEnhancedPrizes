@@ -3,7 +3,6 @@
 ![System Architecture](https://raw.githubusercontent.com/lucascudo/PrivacyEnhancedPrizes/main/PrivacyEnhancedPrizes.png)
 
 ## TO DO
-- criar página no frontend para registro de utilizadores
 - implementar troca de chaves diffie-hellman (https://www.npmjs.com/package/diffie-hellman-key-exchange)
 - implementar distribuição de raspadinhas (e.g., 10 raspadinhas, 1 é ganhadora)
 - habilitar HTTPS

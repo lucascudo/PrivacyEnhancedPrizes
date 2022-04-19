@@ -25,7 +25,7 @@ export class AuthService {
   }
 
   login(username:string, password:string ): Observable<IUser>  {
-      return this.http.post<IUser>(environment.api + 'auth/login', {username, password})
+      return this.http.post<IUser>(environment.api + 'login', {username, password})
         .pipe(tap(this.setSession))
         .pipe(shareReplay());
   }

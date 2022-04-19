@@ -23,16 +23,14 @@ UserSchema.pre<UserDoc>('save', function (next) {
     bcrypt.genSalt(10, (saltError, salt) => {
       if (saltError) {
         return next(saltError);
-      } else {
-        bcrypt.hash(this.password, salt, (hashError, hash) => {
-          if (hashError) {
-            return next(hashError);
-          }
-
-          this.password = hash;
-          next();
-        });
       }
+      bcrypt.hash(this.password, salt, (hashError, hash) => {
+        if (hashError) {
+          return next(hashError);
+        }
+        this.password = hash;
+        next();
+      });
     });
   } else {
     return next();
