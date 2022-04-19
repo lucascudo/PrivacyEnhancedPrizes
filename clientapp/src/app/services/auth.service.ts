@@ -30,6 +30,10 @@ export class AuthService {
         .pipe(shareReplay());
   }
 
+  register(username:string, password:string ): Observable<IUser>  {
+    return this.http.post<IUser>(environment.api + 'register', {username, password});
+  }
+
   logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('decoded_token');
