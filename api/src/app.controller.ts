@@ -1,19 +1,41 @@
-import { Controller, Get, Request, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Request, Post, UseGuards, Redirect } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { UsersService } from './users/users.service';
+import { KeyExchangeService } from './key-exchange/key-exchange.service';
 
 @Controller()
 export class AppController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
+    private keyExchangeService: KeyExchangeService,
   ) {}
+
+  @Get()
+  @Redirect('api', 301)
+  index() {
+    return;
+  }
+
+  @Get('keys')
+  keys() {
+    return this.keyExchangeService.getSharedKeys();
+  }
 
   @Post('register')
   async register(@Request() req) {
-    return this.usersService.create(req.body);
+    console.log(req.body);
+    const decryptedMessage = this.keyExchangeService.decryptMessage(
+      req.body.key,
+      req.body.message,
+    );
+    console.log(decryptedMessage);
+    const user = JSON.parse(decryptedMessage);
+    const createdUser = this.usersService.create(user);
+    const res = JSON.stringify(createdUser);
+    return res;
   }
 
   @UseGuards(LocalAuthGuard)
@@ -24,7 +46,7 @@ export class AppController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
+  profile(@Request() req) {
     return req.user;
   }
 }

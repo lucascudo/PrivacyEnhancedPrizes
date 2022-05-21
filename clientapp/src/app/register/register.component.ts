@@ -24,8 +24,9 @@ export class RegisterComponent {
   register() {
     const val = this.form.value;
     if (val.email && val.password) {
-      this.authService.register(val.email, val.password).subscribe(() => {
-        this.router.navigate(['/login'], { queryParams: val });
+      this.authService.register(val.email, val.password).subscribe((res) => {
+        console.log(res);
+        //this.router.navigate(['/login'], { queryParams: val });
       });
     }
   }

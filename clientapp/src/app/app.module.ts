@@ -10,6 +10,7 @@ import { AuthService } from './services/auth.service';
 import { AuthInterceptor } from './auth.interceptor';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
+import { KeyExchangeService } from './services/key-exchange.service';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { RegisterComponent } from './register/register.component';
   ],
   providers: [
     AuthService,
+    KeyExchangeService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]

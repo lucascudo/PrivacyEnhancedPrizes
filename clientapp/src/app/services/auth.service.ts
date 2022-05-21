@@ -6,13 +6,13 @@ import { tap } from 'rxjs/operators';
 import { environment } from "src/environments/environment";
 import { IUser } from "../models/user.model";
 import { JwtHelperService } from "@auth0/angular-jwt";
+import { KeyExchangeService } from "../services/key-exchange.service";
 
 
 @Injectable()
 export class AuthService {
 
-  constructor(private http: HttpClient) {}
-
+  constructor(private http: HttpClient, private keyExchangeService: KeyExchangeService) {}
 
   private setSession(authResult: any): void {
     const jwtHelper = new JwtHelperService();
@@ -30,8 +30,11 @@ export class AuthService {
         .pipe(shareReplay());
   }
 
-  register(username:string, password:string ): Observable<IUser>  {
-    return this.http.post<IUser>(environment.api + 'register', {username, password});
+  register(username:string, password:string ): Observable<any>  {
+    const message = JSON.stringify({ username, password });
+    //let encryptedMessage = this.keyExchangeService.encryptMessage(message);
+    //return this.http.post<IUser>(environment.api + 'register', encryptedMessage);
+    return this.keyExchangeService.getKeys();
   }
 
   logout(): void {
@@ -40,7 +43,7 @@ export class AuthService {
     localStorage.removeItem('exp');
   }
 
-  public isLoggedIn(): boolean {
+  isLoggedIn(): boolean {
     return moment().isBefore(this.getExpiration());
   }
 
