@@ -14,12 +14,18 @@ export class AuthService {
 
   constructor(private http: HttpClient, private keyExchangeService: KeyExchangeService) {}
 
-  private setSession(authResult: any): void {
+  private setSession(authResult: any, keyExchangeService: KeyExchangeService): void {
+    const access_token = JSON.parse(
+      keyExchangeService.decryptMessage(
+        Uint8Array.from(authResult.oneTimeCode),
+        Uint8Array.from(authResult.cipherText),
+      ),
+    ).access_token;
     const jwtHelper = new JwtHelperService();
-    const decodedToken = jwtHelper.decodeToken(authResult.access_token);
+    const decodedToken = jwtHelper.decodeToken(access_token);
     const expiresAt = moment().add(decodedToken.exp,'second');
 
-    localStorage.setItem('access_token', authResult.access_token);
+    localStorage.setItem('access_token', access_token);
     localStorage.setItem('decoded_token', JSON.stringify(decodedToken));
     localStorage.setItem('exp', JSON.stringify(expiresAt.valueOf()) );
   }
@@ -30,7 +36,7 @@ export class AuthService {
       password,
     }));
     return this.http.post<IUser>(environment.api + 'login', message)
-      .pipe(tap(this.setSession))
+      .pipe(tap((res) => this.setSession(res, this.keyExchangeService)))
       .pipe(shareReplay());
   }
 
@@ -62,7 +68,7 @@ export class AuthService {
     return moment(expiresAt);
   }
 
-  getProfile(): Observable<IUser> {
-    return this.http.get<IUser>(environment.api + 'profile');
+  getProfile() {
+    return this.http.get(environment.api + 'profile/' + JSON.stringify(Array.from(this.keyExchangeService.getPublicKey())));
   }
 }

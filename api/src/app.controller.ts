@@ -6,6 +6,7 @@ import {
   UseGuards,
   Redirect,
   UnauthorizedException,
+  Param,
 } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
@@ -71,12 +72,19 @@ export class AppController {
     if (!validatedUser) {
       throw new UnauthorizedException();
     }
-    return this.authService.login(validatedUser);
+    const loggedUser = await this.authService.login(validatedUser);
+    return this.keyExchangeService.encryptPlainText(
+      JSON.stringify(loggedUser),
+      Uint8Array.from(req.body.publicKey),
+    );
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  profile(@Request() req) {
-    return req.user;
+  @Get('profile/:publicKey')
+  profile(@Request() req, @Param() params) {
+    return this.keyExchangeService.encryptPlainText(
+      JSON.stringify(req.user),
+      Uint8Array.from(JSON.parse(params.publicKey)),
+    );
   }
 }

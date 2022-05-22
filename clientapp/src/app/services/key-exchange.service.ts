@@ -4,7 +4,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import * as nacl from 'tweetnacl-ts';
-import { BoxKeyPair } from "tweetnacl-ts";
+import { BoxKeyPair, ByteArray } from "tweetnacl-ts";
 
 
 @Injectable()
@@ -21,8 +21,8 @@ export class KeyExchangeService {
     return this.alicePublicKey;
   }
 
-  getAlicePublicKeyFromServer(): Observable<Array<Byte>> {
-    return this.http.get<Array<Byte>>(environment.api + 'public-key');
+  getAlicePublicKeyFromServer(): Observable<ByteArray> {
+    return this.http.get<ByteArray>(environment.api + 'public-key');
   }
 
   getPublicKey(): Uint8Array {
@@ -38,8 +38,18 @@ export class KeyExchangeService {
     cipherText: Uint8Array,
   ): string {
     let plainText = '';
+    console.log(1);
+    console.log(nacl.sealedbox_open(
+      cipherText,
+      this.bob.publicKey,
+      this.bob.secretKey
+    ));
     const decodedMessage = nacl.box_open(
-      nacl.sealedbox_open(cipherText, this.bob.publicKey, this.bob.secretKey) ?? new Uint8Array(),
+      nacl.sealedbox_open(
+        cipherText,
+        this.bob.publicKey,
+        this.bob.secretKey
+      ) ?? new Uint8Array(),
       oneTimeCode,
       this.alicePublicKey,
       this.bob.secretKey,

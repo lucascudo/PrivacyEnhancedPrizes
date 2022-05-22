@@ -51,4 +51,19 @@ export class KeyExchangeService {
     );
     return cipherText;
   }
+
+  encryptPlainText(plainText: string, bobPublicKey: Uint8Array) {
+    const publicKey = this.getPublicKey();
+    const oneTimeCode = this.getOneTimeCode();
+    const cipherText = this.encryptMessage(
+      oneTimeCode,
+      bobPublicKey,
+      plainText,
+    );
+    return {
+      oneTimeCode: Array.from(oneTimeCode),
+      publicKey: Array.from(publicKey),
+      cipherText: Array.from(cipherText),
+    };
+  }
 }
