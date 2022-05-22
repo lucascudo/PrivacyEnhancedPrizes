@@ -36,7 +36,6 @@ export class KeyExchangeService {
     publicKey: Uint8Array,
     plainText: string,
   ): Uint8Array {
-    //Get the cipher text
     const cipherText = nacl.box(
       nacl.decodeUTF8(plainText),
       oneTimeCode,

@@ -26,11 +26,9 @@ export class AppController {
     return;
   }
 
-  @Get('keys')
-  keys() {
-    return {
-      publicKey: this.keyExchangeService.getPublicKey(),
-    };
+  @Get('public-key')
+  publicKey() {
+    return this.keyExchangeService.getPublicKey();
   }
 
   @Post('register')
@@ -39,7 +37,7 @@ export class AppController {
     const decryptedMessage = this.keyExchangeService.decryptMessage(
       req.body.oneTimeCode,
       req.body.publicKey,
-      req.body.message,
+      req.body.cipherText,
     );
     console.log(decryptedMessage);
     const user = JSON.parse(decryptedMessage);

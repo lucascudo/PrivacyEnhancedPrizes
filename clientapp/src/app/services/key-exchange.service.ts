@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import * as nacl from 'tweetnacl-ts';
+import { IKeyPair } from "../models/key-pair.model";
 
 
 @Injectable()
@@ -10,11 +11,11 @@ export class KeyExchangeService {
 
   constructor(private http: HttpClient) {}
 
-  getAliceKeys(): Observable<any> {
-    return this.http.get<any>(environment.api + 'keys');
+  getAlicePublicKey(): Observable<Uint8Array> {
+    return this.http.get<Uint8Array>(environment.api + 'public-key');
   }
 
-  private bob = nacl.box_keyPair();
+  private bob: IKeyPair = nacl.box_keyPair();
 
   getPublicKey(): Uint8Array {
     return this.bob.publicKey;

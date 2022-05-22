@@ -7,7 +7,6 @@ import { environment } from "src/environments/environment";
 import { IUser } from "../models/user.model";
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { KeyExchangeService } from "./key-exchange.service";
-import * as nacl from 'tweetnacl-ts';
 
 
 @Injectable()
@@ -32,14 +31,14 @@ export class AuthService {
   }
 
   async register(username:string, password:string ): Promise<any>  {
-    const alice = await this.keyExchangeService.getAliceKeys().toPromise();
+    const alicePublicKey: Uint8Array = await this.keyExchangeService.getAlicePublicKey().toPromise() ?? new Uint8Array();
     const publicKey = this.keyExchangeService.getPublicKey();
     const oneTimeCode = this.keyExchangeService.getOneTimeCode();
     const plainText = JSON.stringify({
       username,
       password,
     });
-    const cipherText = this.keyExchangeService.encryptMessage(oneTimeCode, alice.publicKey, plainText);
+    const cipherText = this.keyExchangeService.encryptMessage(oneTimeCode, alicePublicKey, plainText);
     return this.http.post(environment.api + 'register', {
       oneTimeCode,
       publicKey,
