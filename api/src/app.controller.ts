@@ -1,4 +1,11 @@
-import { Controller, Get, Request, Post, UseGuards, Redirect } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Request,
+  Post,
+  UseGuards,
+  Redirect,
+} from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
@@ -28,13 +35,16 @@ export class AppController {
   async register(@Request() req) {
     console.log(req.body);
     const decryptedMessage = this.keyExchangeService.decryptMessage(
-      req.body.key,
+      req.body.publicKey,
       req.body.message,
     );
     console.log(decryptedMessage);
     const user = JSON.parse(decryptedMessage);
     const createdUser = this.usersService.create(user);
-    const res = JSON.stringify(createdUser);
+    const res = this.keyExchangeService.encryptMessage(
+      req.body.publicKey,
+      JSON.stringify(createdUser),
+    );
     return res;
   }
 

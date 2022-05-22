@@ -6,7 +6,8 @@ import { tap } from 'rxjs/operators';
 import { environment } from "src/environments/environment";
 import { IUser } from "../models/user.model";
 import { JwtHelperService } from "@auth0/angular-jwt";
-import { KeyExchangeService } from "../services/key-exchange.service";
+import { KeyExchangeService } from "./key-exchange.service";
+import { AES } from 'crypto-ts';
 
 
 @Injectable()
@@ -30,11 +31,19 @@ export class AuthService {
         .pipe(shareReplay());
   }
 
-  register(username:string, password:string ): Observable<any>  {
-    const message = JSON.stringify({ username, password });
-    //let encryptedMessage = this.keyExchangeService.encryptMessage(message);
-    //return this.http.post<IUser>(environment.api + 'register', encryptedMessage);
-    return this.keyExchangeService.getKeys();
+  async register(username:string, password:string ): Promise<any>  {
+    const alice = await this.keyExchangeService.getKeys();
+    const primeInt = parseInt(alice.primeNumber, 16);
+    const integer = Math.floor(Math.random() * primeInt);
+    console.log(primeInt);
+    console.log(integer);
+    const sharedKey = this.keyExchangeService.getSharedKeyDiffieHellman(primeInt, integer,parseInt(alice.publicKey, 16));
+    const publicKey = this.keyExchangeService.getPublicKeyDiffieHellman(primeInt, alice.generator, integer)
+    const message = AES.encrypt(JSON.stringify({ username, password }), sharedKey.toString());
+    return this.http.post(environment.api + 'register', {
+      publicKey,
+      message
+    }).toPromise();
   }
 
   logout(): void {

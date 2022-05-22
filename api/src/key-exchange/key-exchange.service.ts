@@ -24,8 +24,8 @@ export class KeyExchangeService {
     return this.crypt(sharedKey, message, 'decrypt');
   }
 
-  encryptMessage(message: string) {
-    const sharedKey = this.bob.computeSecret(this.bob.getPrivateKey());
+  encryptMessage(key: Buffer, message: string) {
+    const sharedKey = this.bob.computeSecret(key);
     return this.crypt(sharedKey, message, 'encrypt');
   }
 
