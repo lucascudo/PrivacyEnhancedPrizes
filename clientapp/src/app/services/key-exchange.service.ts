@@ -9,13 +9,20 @@ import { IKeyPair } from "../models/key-pair.model";
 @Injectable()
 export class KeyExchangeService {
 
-  constructor(private http: HttpClient) {}
-
-  getAlicePublicKey(): Observable<Uint8Array> {
-    return this.http.get<Uint8Array>(environment.api + 'public-key');
+  constructor(private http: HttpClient) {
+    this.getAlicePublicKeyFromServer().subscribe(res => this.alicePublicKey = Uint8Array.from(res));
   }
 
   private bob: IKeyPair = nacl.box_keyPair();
+  private alicePublicKey: Uint8Array = new Uint8Array();
+
+  getAlicePublicKey(): Uint8Array {
+    return this.alicePublicKey;
+  }
+
+  getAlicePublicKeyFromServer(): Observable<Array<number>> {
+    return this.http.get<Array<number>>(environment.api + 'public-key');
+  }
 
   getPublicKey(): Uint8Array {
     return this.bob.publicKey;
@@ -27,14 +34,13 @@ export class KeyExchangeService {
 
   decryptMessage(
     oneTimeCode: Uint8Array,
-    publicKey: Uint8Array,
     cipherText: Uint8Array,
   ): string {
     let plainText = '';
     const decodedMessage = nacl.box_open(
       cipherText,
       oneTimeCode,
-      publicKey,
+      this.alicePublicKey,
       this.bob.secretKey,
     );
     if (decodedMessage) {
@@ -45,16 +51,26 @@ export class KeyExchangeService {
 
   encryptMessage(
     oneTimeCode: Uint8Array,
-    publicKey: Uint8Array,
     plainText: string,
   ): Uint8Array {
     //Get the cipher text
     const cipherText = nacl.box(
       nacl.decodeUTF8(plainText),
       oneTimeCode,
-      publicKey,
+      this.alicePublicKey,
       this.bob.secretKey,
     );
     return cipherText;
+  }
+
+  encryptPlainText(plainText: string) {
+    const publicKey = this.getPublicKey();
+    const oneTimeCode = this.getOneTimeCode();
+    const cipherText = this.encryptMessage(oneTimeCode, plainText);
+    return {
+      oneTimeCode: Array.from(oneTimeCode),
+      publicKey: Array.from(publicKey),
+      cipherText: Array.from(cipherText),
+    };
   }
 }

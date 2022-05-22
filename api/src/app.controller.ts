@@ -5,6 +5,7 @@ import {
   Post,
   UseGuards,
   Redirect,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
@@ -28,38 +29,49 @@ export class AppController {
 
   @Get('public-key')
   publicKey() {
-    return this.keyExchangeService.getPublicKey();
+    return Array.from(this.keyExchangeService.getPublicKey());
   }
 
   @Post('register')
   async register(@Request() req) {
-    console.log(req.body);
     const decryptedMessage = this.keyExchangeService.decryptMessage(
-      req.body.oneTimeCode,
-      req.body.publicKey,
-      req.body.cipherText,
+      Uint8Array.from(req.body.oneTimeCode),
+      Uint8Array.from(req.body.publicKey),
+      Uint8Array.from(req.body.cipherText),
     );
-    console.log(decryptedMessage);
     const user = JSON.parse(decryptedMessage);
     const createdUser = this.usersService.create(user);
     const oneTimeCode = this.keyExchangeService.getOneTimeCode();
     const publicKey = this.keyExchangeService.getPublicKey();
     const cipherText = this.keyExchangeService.encryptMessage(
       oneTimeCode,
-      req.body.publicKey,
+      Uint8Array.from(req.body.publicKey),
       JSON.stringify(createdUser),
     );
     return {
-      oneTimeCode,
-      publicKey,
-      cipherText,
+      oneTimeCode: Array.from(oneTimeCode),
+      publicKey: Array.from(publicKey),
+      cipherText: Array.from(cipherText),
     };
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    return this.authService.login(req.user);
+    const user = JSON.parse(
+      this.keyExchangeService.decryptMessage(
+        Uint8Array.from(req.body.oneTimeCode),
+        Uint8Array.from(req.body.publicKey),
+        Uint8Array.from(req.body.cipherText),
+      ),
+    );
+    const validatedUser = await this.authService.validateUser(
+      user.username,
+      user.password,
+    );
+    if (!validatedUser) {
+      throw new UnauthorizedException();
+    }
+    return this.authService.login(validatedUser);
   }
 
   @UseGuards(JwtAuthGuard)

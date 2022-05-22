@@ -25,25 +25,21 @@ export class AuthService {
   }
 
   login(username:string, password:string ): Observable<IUser>  {
-      return this.http.post<IUser>(environment.api + 'login', {username, password})
-        .pipe(tap(this.setSession))
-        .pipe(shareReplay());
-  }
-
-  async register(username:string, password:string ): Promise<any>  {
-    const alicePublicKey: Uint8Array = await this.keyExchangeService.getAlicePublicKey().toPromise() ?? new Uint8Array();
-    const publicKey = this.keyExchangeService.getPublicKey();
-    const oneTimeCode = this.keyExchangeService.getOneTimeCode();
-    const plainText = JSON.stringify({
+    const message = this.keyExchangeService.encryptPlainText(JSON.stringify({
       username,
       password,
-    });
-    const cipherText = this.keyExchangeService.encryptMessage(oneTimeCode, alicePublicKey, plainText);
-    return this.http.post(environment.api + 'register', {
-      oneTimeCode,
-      publicKey,
-      cipherText,
-    }).toPromise();
+    }));
+    return this.http.post<IUser>(environment.api + 'login', message)
+      .pipe(tap(this.setSession))
+      .pipe(shareReplay());
+  }
+
+  register(username:string, password:string ): Observable<any>  {
+    const message = this.keyExchangeService.encryptPlainText(JSON.stringify({
+      username,
+      password,
+    }));
+    return this.http.post(environment.api + 'register', message);
   }
 
   logout(): void {
