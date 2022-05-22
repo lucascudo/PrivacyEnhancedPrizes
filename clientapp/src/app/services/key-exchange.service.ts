@@ -1,9 +1,10 @@
 import { HttpClient } from "@angular/common/http";
+import { Byte } from "@angular/compiler/src/util";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import * as nacl from 'tweetnacl-ts';
-import { IKeyPair } from "../models/key-pair.model";
+import { BoxKeyPair } from "tweetnacl-ts";
 
 
 @Injectable()
@@ -13,15 +14,15 @@ export class KeyExchangeService {
     this.getAlicePublicKeyFromServer().subscribe(res => this.alicePublicKey = Uint8Array.from(res));
   }
 
-  private bob: IKeyPair = nacl.box_keyPair();
+  private bob: BoxKeyPair = nacl.box_keyPair();
   private alicePublicKey: Uint8Array = new Uint8Array();
 
   getAlicePublicKey(): Uint8Array {
     return this.alicePublicKey;
   }
 
-  getAlicePublicKeyFromServer(): Observable<Array<number>> {
-    return this.http.get<Array<number>>(environment.api + 'public-key');
+  getAlicePublicKeyFromServer(): Observable<Array<Byte>> {
+    return this.http.get<Array<Byte>>(environment.api + 'public-key');
   }
 
   getPublicKey(): Uint8Array {
@@ -38,7 +39,7 @@ export class KeyExchangeService {
   ): string {
     let plainText = '';
     const decodedMessage = nacl.box_open(
-      cipherText,
+      nacl.sealedbox_open(cipherText, this.bob.publicKey, this.bob.secretKey) ?? new Uint8Array(),
       oneTimeCode,
       this.alicePublicKey,
       this.bob.secretKey,
@@ -53,12 +54,14 @@ export class KeyExchangeService {
     oneTimeCode: Uint8Array,
     plainText: string,
   ): Uint8Array {
-    //Get the cipher text
-    const cipherText = nacl.box(
-      nacl.decodeUTF8(plainText),
-      oneTimeCode,
+    const cipherText = nacl.sealedbox(
+      nacl.box(
+        nacl.decodeUTF8(plainText),
+        oneTimeCode,
+        this.alicePublicKey,
+        this.bob.secretKey,
+      ),
       this.alicePublicKey,
-      this.bob.secretKey,
     );
     return cipherText;
   }

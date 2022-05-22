@@ -20,7 +20,11 @@ export class KeyExchangeService {
   ): string {
     let plainText = '';
     const decodedMessage = nacl.box_open(
-      cipherText,
+      nacl.sealedbox_open(
+        cipherText,
+        this.alice.publicKey,
+        this.alice.secretKey,
+      ),
       oneTimeCode,
       publicKey,
       this.alice.secretKey,
@@ -33,14 +37,17 @@ export class KeyExchangeService {
 
   encryptMessage(
     oneTimeCode: Uint8Array,
-    publicKey: Uint8Array,
+    bobPublicKey: Uint8Array,
     plainText: string,
   ): Uint8Array {
-    const cipherText = nacl.box(
-      nacl.decodeUTF8(plainText),
-      oneTimeCode,
-      publicKey,
-      this.alice.secretKey,
+    const cipherText = nacl.sealedbox(
+      nacl.box(
+        nacl.decodeUTF8(plainText),
+        oneTimeCode,
+        bobPublicKey,
+        this.alice.secretKey,
+      ),
+      bobPublicKey,
     );
     return cipherText;
   }
