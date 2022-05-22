@@ -3,7 +3,7 @@
 ![System Architecture](https://raw.githubusercontent.com/lucascudo/PrivacyEnhancedPrizes/main/PrivacyEnhancedPrizes.png)
 
 ## TO DO
-- implementar troca de chaves diffie-hellman (https://medium.com/@moghiny/diffie-hellman-key-exchange-theory-and-practice-with-node-js-ab2575e14e8)
+- implementar troca de chaves diffie-hellman: (https://medium.com/@moghiny/diffie-hellman-key-exchange-theory-and-practice-with-node-js-ab2575e14e8) e (https://github.com/rizkiarm/Diffie-Hellman)
 - implementar distribuição de raspadinhas (e.g., 10 raspadinhas, 1 é ganhadora)
 - habilitar HTTPS
 - (o anônimato?) dos utilizadores é garantida por um mecanismos de oblivious transfer (considerar usar RSA) (https://www.npmjs.com/package/oblivious-transfer)
