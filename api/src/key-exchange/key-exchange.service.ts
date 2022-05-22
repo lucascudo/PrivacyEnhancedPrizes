@@ -1,43 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { createDiffieHellman, randomBytes } from 'crypto';
-import aesjs from 'aes-js';
+import * as nacl from 'tweetnacl-ts';
 
 @Injectable()
 export class KeyExchangeService {
-  constructor() {
-    this.publicKey = this.bob.generateKeys();
+  private alice = nacl.box_keyPair();
+
+  getPublicKey(): Uint8Array {
+    return this.alice.publicKey;
   }
 
-  private bob = createDiffieHellman(1024);
-  private publicKey: Buffer;
-
-  getSharedKeys() {
-    return {
-      publicKey: this.publicKey.toString('hex'),
-      primeNumber: this.bob.getPrime().toString('hex'),
-      generator: this.bob.getGenerator().toString('hex'),
-    };
+  getOneTimeCode(): Uint8Array {
+    return nacl.randomBytes(24);
   }
 
-  decryptMessage(key: Buffer, message: string) {
-    const sharedKey = this.bob.computeSecret(key);
-    return this.crypt(sharedKey, message, 'decrypt');
-  }
-
-  encryptMessage(key: Buffer, message: string) {
-    const sharedKey = this.bob.computeSecret(key);
-    return this.crypt(sharedKey, message, 'encrypt');
-  }
-
-  private getFreshAesCbc(sharedKey: Buffer) {
-    return new aesjs.ModeOfOperation.cbc(sharedKey, randomBytes(16));
-  }
-
-  private crypt(key: Buffer, message: string, op: string) {
-    const sharedKey = this.bob.computeSecret(key);
-    return String.fromCharCode.apply(
-      null,
-      this.getFreshAesCbc(sharedKey)[op](message),
+  decryptMessage(
+    oneTimeCode: Uint8Array,
+    publicKey: Uint8Array,
+    cipherText: Uint8Array,
+  ): string {
+    let plainText = '';
+    const decodedMessage = nacl.box_open(
+      cipherText,
+      oneTimeCode,
+      publicKey,
+      this.alice.secretKey,
     );
+    if (decodedMessage) {
+      plainText = nacl.encodeUTF8(decodedMessage);
+    }
+    return plainText;
+  }
+
+  encryptMessage(
+    oneTimeCode: Uint8Array,
+    publicKey: Uint8Array,
+    plainText: string,
+  ): Uint8Array {
+    //Get the cipher text
+    const cipherText = nacl.box(
+      nacl.decodeUTF8(plainText),
+      oneTimeCode,
+      publicKey,
+      this.alice.secretKey,
+    );
+    return cipherText;
   }
 }

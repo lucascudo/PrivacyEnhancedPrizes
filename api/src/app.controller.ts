@@ -28,24 +28,34 @@ export class AppController {
 
   @Get('keys')
   keys() {
-    return this.keyExchangeService.getSharedKeys();
+    return {
+      publicKey: this.keyExchangeService.getPublicKey(),
+    };
   }
 
   @Post('register')
   async register(@Request() req) {
     console.log(req.body);
     const decryptedMessage = this.keyExchangeService.decryptMessage(
+      req.body.oneTimeCode,
       req.body.publicKey,
       req.body.message,
     );
     console.log(decryptedMessage);
     const user = JSON.parse(decryptedMessage);
     const createdUser = this.usersService.create(user);
-    const res = this.keyExchangeService.encryptMessage(
+    const oneTimeCode = this.keyExchangeService.getOneTimeCode();
+    const publicKey = this.keyExchangeService.getPublicKey();
+    const cipherText = this.keyExchangeService.encryptMessage(
+      oneTimeCode,
       req.body.publicKey,
       JSON.stringify(createdUser),
     );
-    return res;
+    return {
+      oneTimeCode,
+      publicKey,
+      cipherText,
+    };
   }
 
   @UseGuards(LocalAuthGuard)

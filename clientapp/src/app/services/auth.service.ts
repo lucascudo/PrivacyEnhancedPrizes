@@ -7,7 +7,7 @@ import { environment } from "src/environments/environment";
 import { IUser } from "../models/user.model";
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { KeyExchangeService } from "./key-exchange.service";
-import { AES } from 'crypto-ts';
+import * as nacl from 'tweetnacl-ts';
 
 
 @Injectable()
@@ -32,17 +32,18 @@ export class AuthService {
   }
 
   async register(username:string, password:string ): Promise<any>  {
-    const alice = await this.keyExchangeService.getKeys();
-    const primeInt = parseInt(alice.primeNumber, 16);
-    const integer = Math.floor(Math.random() * primeInt);
-    console.log(primeInt);
-    console.log(integer);
-    const sharedKey = this.keyExchangeService.getSharedKeyDiffieHellman(primeInt, integer,parseInt(alice.publicKey, 16));
-    const publicKey = this.keyExchangeService.getPublicKeyDiffieHellman(primeInt, alice.generator, integer)
-    const message = AES.encrypt(JSON.stringify({ username, password }), sharedKey.toString());
+    const alice = await this.keyExchangeService.getAliceKeys().toPromise();
+    const publicKey = this.keyExchangeService.getPublicKey();
+    const oneTimeCode = this.keyExchangeService.getOneTimeCode();
+    const plainText = JSON.stringify({
+      username,
+      password,
+    });
+    const cipherText = this.keyExchangeService.encryptMessage(oneTimeCode, alice.publicKey, plainText);
     return this.http.post(environment.api + 'register', {
+      oneTimeCode,
       publicKey,
-      message
+      cipherText,
     }).toPromise();
   }
 
