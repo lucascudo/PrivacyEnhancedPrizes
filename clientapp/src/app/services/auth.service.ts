@@ -30,6 +30,11 @@ export class AuthService {
     localStorage.setItem('exp', JSON.stringify(expiresAt.valueOf()) );
   }
 
+  getdecodedToken() {
+    const decodedToken = localStorage.getItem('decoded_token');
+    return decodedToken ? JSON.parse(decodedToken) : undefined;
+  }
+
   login(username:string, password:string ): Observable<IUser>  {
     const message = this.keyExchangeService.encryptPlainText(JSON.stringify({
       username,

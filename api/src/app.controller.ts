@@ -5,13 +5,13 @@ import {
   Post,
   UseGuards,
   Redirect,
-  UnauthorizedException,
   Param,
-  NotImplementedException,
 } from '@nestjs/common';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { UsersService } from './users/users.service';
+import { CardsService } from './cards/cards.service';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { LocalAuthGuard } from './auth/local-auth.guard';
 import { KeyExchangeService } from './key-exchange/key-exchange.service';
 
 @Controller()
@@ -19,6 +19,7 @@ export class AppController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
+    private cardsService: CardsService,
     private keyExchangeService: KeyExchangeService,
   ) {}
 
@@ -56,23 +57,10 @@ export class AppController {
     };
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    const user = JSON.parse(
-      this.keyExchangeService.decryptMessage(
-        Uint8Array.from(req.body.oneTimeCode),
-        Uint8Array.from(req.body.publicKey),
-        Uint8Array.from(req.body.cipherText),
-      ),
-    );
-    const validatedUser = await this.authService.validateUser(
-      user.username,
-      user.password,
-    );
-    if (!validatedUser) {
-      throw new UnauthorizedException();
-    }
-    const loggedUser = await this.authService.login(validatedUser);
+    const loggedUser = await this.authService.login(req.user);
     return this.keyExchangeService.encryptPlainText(
       JSON.stringify(loggedUser),
       Uint8Array.from(req.body.publicKey),
@@ -90,8 +78,11 @@ export class AppController {
 
   @UseGuards(JwtAuthGuard)
   @Get('scratch-card/:publicKey')
-  scratchCard(@Request() req, @Param() params) {
-    //TODO
-    throw new NotImplementedException();
+  async scratchCard(@Request() req, @Param() params) {
+    const card = await this.cardsService.scratch(req.user._id);
+    return this.keyExchangeService.encryptPlainText(
+      JSON.stringify(card),
+      Uint8Array.from(JSON.parse(params.publicKey)),
+    );
   }
 }

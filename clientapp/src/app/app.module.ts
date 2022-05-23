@@ -7,10 +7,11 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from './services/auth.service';
-import { AuthInterceptor } from './auth.interceptor';
+import { AuthInterceptor } from './auth/auth.interceptor';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
 import { KeyExchangeService } from './services/key-exchange.service';
+import { CardsService } from './services/cards.service';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { KeyExchangeService } from './services/key-exchange.service';
   providers: [
     AuthService,
     KeyExchangeService,
+    CardsService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
