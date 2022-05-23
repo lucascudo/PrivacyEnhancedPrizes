@@ -38,12 +38,6 @@ export class KeyExchangeService {
     cipherText: Uint8Array,
   ): string {
     let plainText = '';
-    console.log(1);
-    console.log(nacl.sealedbox_open(
-      cipherText,
-      this.bob.publicKey,
-      this.bob.secretKey
-    ));
     const decodedMessage = nacl.box_open(
       nacl.sealedbox_open(
         cipherText,
