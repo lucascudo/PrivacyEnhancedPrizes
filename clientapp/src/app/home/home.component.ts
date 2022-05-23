@@ -19,10 +19,16 @@ export class HomeComponent implements OnInit {
   ) { }
 
   username: string = '';
+  loading: boolean = false;
   card: any;
 
   ngOnInit(): void {
     this.username = this.authService.getdecodedToken().username;
+    this.getCard();
+  }
+
+  getCard() {
+    this.loading = true;
     this.cardsService.scratch().subscribe(res => {
       this.card = JSON.parse(
         this.keyExchangeService.decryptMessage(
@@ -30,6 +36,8 @@ export class HomeComponent implements OnInit {
           Uint8Array.from(res.cipherText),
         ),
       );
+      this.loading = false;
+      setTimeout(() => this.getCard(), this.card.timeout * 1000);
     });
   }
 

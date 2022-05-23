@@ -15,7 +15,7 @@ import { KeyExchangeService } from 'src/key-exchange/key-exchange.service';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: process.env.JWT_SECRET_EXP },
     }),
   ],
   providers: [AuthService, KeyExchangeService, LocalStrategy, JwtStrategy],

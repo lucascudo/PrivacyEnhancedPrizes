@@ -2,26 +2,50 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Card, CardDocument } from './card.schema';
 import { Model } from 'mongoose';
+import * as moment from 'moment';
 
 @Injectable()
 export class CardsService {
   constructor(@InjectModel(Card.name) private cardModel: Model<CardDocument>) {}
 
-  async scratch(userId: string): Promise<Card> {
-    const createdCard = new this.cardModel({
-      user: userId,
-      scratched: new Date(),
-      winner: this.isLucky(parseInt(process.env.CHANCES)),
-    });
-    await createdCard.save();
-    const { scratched, winner } = createdCard;
-    return { scratched, winner };
-  }
-
-  isLucky(chances: number): boolean {
+  private isLucky(chances: number): boolean {
     return (
       Math.floor(Math.random() * chances) ===
       Math.floor(Math.random() * chances)
     );
+  }
+
+  async scratch(userId: string): Promise<any> {
+    let card;
+    const lastCards: Card[] = await this.cardModel
+      .find({ user: userId })
+      .sort({ _id: -1 })
+      .limit(1);
+    if (
+      lastCards &&
+      lastCards.length &&
+      moment(moment()).isBefore(
+        moment(lastCards[0].scratched).add(
+          parseInt(process.env.TIMEOUT),
+          'seconds',
+        ),
+      )
+    ) {
+      card = lastCards[0];
+    } else {
+      const createdCard = new this.cardModel({
+        user: userId,
+        scratched: new Date(),
+        winner: this.isLucky(parseInt(process.env.CHANCES)),
+      });
+      await createdCard.save();
+      card = createdCard;
+    }
+    const { scratched, winner } = card;
+    return {
+      scratched,
+      winner,
+      timeout: process.env.TIMEOUT,
+    };
   }
 }
