@@ -7,9 +7,9 @@ import {
   Redirect,
   UnauthorizedException,
   Param,
+  NotImplementedException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { UsersService } from './users/users.service';
 import { KeyExchangeService } from './key-exchange/key-exchange.service';
@@ -86,5 +86,12 @@ export class AppController {
       JSON.stringify(req.user),
       Uint8Array.from(JSON.parse(params.publicKey)),
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('scratch-card/:publicKey')
+  scratchCard(@Request() req, @Param() params) {
+    //TODO
+    throw new NotImplementedException();
   }
 }
