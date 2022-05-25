@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Byte } from "@angular/compiler/src/util";
-import { Injectable } from "@angular/core";
+import { Injectable, OnInit } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import * as nacl from 'tweetnacl-ts';
@@ -8,9 +8,11 @@ import { BoxKeyPair, ByteArray } from "tweetnacl-ts";
 
 
 @Injectable()
-export class KeyExchangeService {
+export class KeyExchangeService implements OnInit {
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
     this.getAlicePublicKeyFromServer().subscribe(res => this.alicePublicKey = Uint8Array.from(res));
   }
 
