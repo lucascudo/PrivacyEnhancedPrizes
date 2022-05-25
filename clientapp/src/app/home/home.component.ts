@@ -38,6 +38,10 @@ export class HomeComponent implements OnInit {
       );
       this.loading = false;
       setTimeout(() => this.getCard(), this.card.timeout * 1000);
+    }, err => {
+      if (err.status === 401) {
+        this.logout();
+      }
     });
   }
 
