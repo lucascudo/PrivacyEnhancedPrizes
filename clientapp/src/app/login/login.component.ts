@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -8,13 +8,12 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   form:FormGroup;
   constructor(
     private fb:FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute) {
+    private router: Router) {
 
     this.form = this.fb.group({
       email: ['',Validators.required],
@@ -22,23 +21,13 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      if (params['email'] && params['password']) {
-        this.form.setValue({
-          email: params['email'],
-          password: params['password'],
-        });
-      }
-    });
-  }
-
   login() {
     const val = this.form.value;
     if (val.email && val.password) {
-      this.authService.login(val.email, val.password).subscribe(() => {
-        this.router.navigateByUrl('/');
-      });
+      this.authService.login(val.email, val.password).subscribe({
+        next: () => this.router.navigateByUrl('/'),
+        error: (error) => alert(error.error.message),
+      });;
     }
   }
 }
