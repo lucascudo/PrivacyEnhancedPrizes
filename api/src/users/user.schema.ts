@@ -21,13 +21,6 @@ export interface UserDoc extends Document {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-UserSchema.virtual('decoded_username').get(function () {
-  const mykey = crypto.createDecipher('aes-128-cbc', process.env.AES_KEY);
-  let decryptedUsername = mykey.update(this.username, 'hex', 'utf8');
-  decryptedUsername += mykey.final('utf8');
-  return decryptedUsername;
-});
-
 UserSchema.pre<UserDoc>('save', function (next) {
   if (this.isNew) {
     const mykey = crypto.createCipher('aes-128-cbc', process.env.AES_KEY);
