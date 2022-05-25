@@ -41,8 +41,9 @@ export class CardsService {
       await createdCard.save();
       card = createdCard;
     }
-    const { scratched, winner } = card;
+    const { _id, scratched, winner } = card;
     return {
+      _id,
       scratched,
       winner,
       timeout: process.env.TIMEOUT,

@@ -12,6 +12,8 @@ import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
 import { KeyExchangeService } from './services/key-exchange.service';
 import { CardsService } from './services/cards.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AppPrimeNgModule } from './app-prime-ng.module';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,9 @@ import { CardsService } from './services/cards.service';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
+    AppPrimeNgModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,

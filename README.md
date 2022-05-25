@@ -4,7 +4,7 @@
 
 ## TO DO
 ### extras
-- embelezar os componentes angular (PrimeNG? puro SCSS?)
+- embelezar os componentes páginas
 - adicionar comentários swagger (documentação da API)
 - corrigir testes unitários
 - implementar pipeline de CI com github actions
