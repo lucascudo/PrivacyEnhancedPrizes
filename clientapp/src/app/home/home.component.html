@@ -1,5 +1,5 @@
 <p>Olá {{ username }},</p>
 <p [hidden]="!loading">Raspando...</p>
-<p [hidden]="loading">Última raspadinha: {{ card?.scratched | date:"medium" }}</p>
+<p [hidden]="loading">Última raspadinha: {{ card?.scratched | date:"shortTime" }}</p>
 <p [hidden]="loading">Resultado: {{ card?.winner ? 'SORTE GRANDE!!!' : 'Ainda não foi dessa vez...' }}</p>
 <a href="#" (click)="logout()">sair</a>

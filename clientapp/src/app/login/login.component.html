@@ -1,8 +1,8 @@
 <form [formGroup]="form">
   <fieldset>
-      <legend>Login</legend>
+      <legend>Entrar</legend>
       <div class="form-field">
-          <label>Email:</label>
+          <label>Utilizador:</label>
           <input name="email" formControlName="email">
       </div>
       <div class="form-field">
@@ -11,6 +11,6 @@
       </div>
   </fieldset>
   <div class="form-buttons">
-      <button class="button button-primary"(click)="login()">Login</button> or <a [routerLink]="'/register'">register</a>
+      <button class="button button-primary"(click)="login()">Entrar</button> ou <a [routerLink]="'/register'">cadastrar</a>
   </div>
 </form>
