@@ -25,8 +25,11 @@ export class AuthService {
   }
 
   async login(user: any) {
+    const mykey = crypto.createDecipher('aes-128-cbc', process.env.AES_KEY);
+    let decryptedUsername = mykey.update(user._doc.username, 'hex', 'utf8');
+    decryptedUsername += mykey.final('utf8');
     const payload = {
-      username: user._doc.decoded_username,
+      username: decryptedUsername,
       sub: user._doc._id,
     };
     return {
