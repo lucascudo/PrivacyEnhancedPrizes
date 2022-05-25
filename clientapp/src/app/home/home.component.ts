@@ -29,18 +29,21 @@ export class HomeComponent implements OnInit {
 
   getCard() {
     this.loading = true;
-    this.cardsService.scratch().subscribe(res => {
-      this.card = JSON.parse(
-        this.keyExchangeService.decryptMessage(
-          Uint8Array.from(res.oneTimeCode),
-          Uint8Array.from(res.cipherText),
-        ),
-      );
-      this.loading = false;
-      setTimeout(() => this.getCard(), this.card.timeout * 1000);
-    }, err => {
-      if (err.status === 401) {
-        this.logout();
+    this.cardsService.scratch().subscribe({
+      next: res => {
+        this.card = JSON.parse(
+          this.keyExchangeService.decryptMessage(
+            Uint8Array.from(res.oneTimeCode),
+            Uint8Array.from(res.cipherText),
+          ),
+        );
+        this.loading = false;
+        setTimeout(() => this.getCard(), this.card.timeout * 1000);
+      },
+      error: err => {
+        if (err.status === 401) {
+          this.logout();
+        }
       }
     });
   }
