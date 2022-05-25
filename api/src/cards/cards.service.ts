@@ -24,7 +24,7 @@ export class CardsService {
     if (
       lastCards &&
       lastCards.length &&
-      moment(moment()).isBefore(
+      moment().isBefore(
         moment(lastCards[0].scratched).add(
           parseInt(process.env.TIMEOUT),
           'seconds',
