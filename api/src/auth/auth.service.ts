@@ -13,7 +13,11 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
-    const mykey = crypto.createCipher('aes-128-cbc', process.env.AES_KEY);
+    const mykey = crypto.createCipheriv(
+      'aes-128-cbc',
+      process.env.AES_KEY,
+      process.env.IV,
+    );
     let cipherText = mykey.update(username, 'utf8', 'hex');
     cipherText += mykey.final('hex');
     const user: User = await this.usersService.findOne(cipherText);
@@ -25,7 +29,11 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const mykey = crypto.createDecipher('aes-128-cbc', process.env.AES_KEY);
+    const mykey = crypto.createDecipheriv(
+      'aes-128-cbc',
+      process.env.AES_KEY,
+      process.env.IV,
+    );
     let decryptedUsername = mykey.update(user._doc.username, 'hex', 'utf8');
     decryptedUsername += mykey.final('utf8');
     const payload = {

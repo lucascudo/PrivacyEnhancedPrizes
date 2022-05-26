@@ -23,7 +23,11 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.pre<UserDoc>('save', function (next) {
   if (this.isNew) {
-    const mykey = crypto.createCipher('aes-128-cbc', process.env.AES_KEY);
+    const mykey = crypto.createCipheriv(
+      'aes-128-cbc',
+      process.env.AES_KEY,
+      process.env.IV,
+    );
     let cipherText = mykey.update(this.username, 'utf8', 'hex');
     cipherText += mykey.final('hex');
     this.username = cipherText;
