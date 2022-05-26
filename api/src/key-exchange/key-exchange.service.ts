@@ -15,15 +15,15 @@ export class KeyExchangeService {
 
   decryptMessage(
     oneTimeCode: Uint8Array,
-    publicKey: Uint8Array,
+    bobPublicKey: Uint8Array,
     cipherText: Uint8Array,
   ): string {
     let plainText = '';
-    const decodedMessage = nacl.box_open(
+    const sharedKey = nacl.box_before(bobPublicKey, this.alice.secretKey);
+    const decodedMessage = nacl.box_open_after(
       cipherText ?? new Uint8Array(),
       oneTimeCode,
-      publicKey,
-      this.alice.secretKey,
+      sharedKey,
     );
     if (decodedMessage) {
       plainText = nacl.encodeUTF8(decodedMessage);
@@ -36,12 +36,8 @@ export class KeyExchangeService {
     bobPublicKey: Uint8Array,
     plainText: string,
   ): Uint8Array {
-    return nacl.box(
-      nacl.decodeUTF8(plainText),
-      oneTimeCode,
-      bobPublicKey,
-      this.alice.secretKey,
-    );
+    const sharedKey = nacl.box_before(bobPublicKey, this.alice.secretKey);
+    return nacl.box_after(nacl.decodeUTF8(plainText), oneTimeCode, sharedKey);
   }
 
   encryptPlainText(plainText: string, bobPublicKey: Uint8Array) {

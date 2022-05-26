@@ -34,11 +34,11 @@ export class KeyExchangeService {
 
   decryptMessage(oneTimeCode: Uint8Array, cipherText: Uint8Array): string {
     let plainText = '';
-    const decodedMessage = nacl.box_open(
+    const sharedKey = nacl.box_before(this.alicePublicKey, this.bob.secretKey);
+    const decodedMessage = nacl.box_open_after(
       cipherText ?? new Uint8Array(),
       oneTimeCode,
-      this.alicePublicKey,
-      this.bob.secretKey,
+      sharedKey,
     );
     if (decodedMessage) {
       plainText = nacl.encodeUTF8(decodedMessage);
@@ -50,12 +50,8 @@ export class KeyExchangeService {
     oneTimeCode: Uint8Array,
     plainText: string,
   ): Uint8Array {
-    return nacl.box(
-      nacl.decodeUTF8(plainText),
-      oneTimeCode,
-      this.alicePublicKey,
-      this.bob.secretKey,
-    );
+    const sharedKey = nacl.box_before(this.alicePublicKey, this.bob.secretKey);
+    return nacl.box_after(nacl.decodeUTF8(plainText), oneTimeCode, sharedKey);
   }
 
   encryptPlainText(plainText: string) {
