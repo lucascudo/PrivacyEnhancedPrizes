@@ -7,4 +7,4 @@
 - embelezar as páginas
 - adicionar comentários swagger (documentação da API)
 - corrigir testes unitários
-- implementar pipeline de CI com github actions
+- implementar pipeline de Continuous Integration com github actions
