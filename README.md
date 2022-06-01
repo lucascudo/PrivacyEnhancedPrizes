@@ -7,14 +7,14 @@
 cd api
 npm install
 cd secrets
-openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+openssl req -newkey rsa:2048 -new -nodes -x509 -days 365 -keyout key.pem -out cert.pem
 ``` 
 ## CLIENT_APP SETUP
 ```
 cd clientapp
 npm install
 cd secrets
-openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+openssl req -newkey rsa:2048 -new -nodes -x509 -days 365 -keyout key.pem -out cert.pem
 ```
  ## RUN API
 ```
